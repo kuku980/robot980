@@ -1,0 +1,186 @@
+
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>Robot Siege 正式版</title>
+  <style>
+    body { text-align: center; font-family: sans-serif; background: #eef; }
+    #gameCanvas { border: 1px solid #000; display: none; margin-top: 20px; }
+    #taskPanel { display: none; position: fixed; top: 70px; left: 20px; width: 280px;
+      background: #fff; border: 2px solid #000; padding: 10px; z-index: 1000; }
+  </style>
+</head>
+<body>
+  <h1>🤖 機器人攻城遊戲：正式版</h1>
+  <button id="startBtn" onclick="startGame()">▶️ 開始遊戲</button>
+  <button onclick="toggleTasks()">📋 任務</button>
+  <canvas id="gameCanvas" width="800" height="600"></canvas>
+
+  <div id="taskPanel">
+    <h3>📅 每日任務</h3>
+    <ul id="dailyTasks"></ul>
+    <h3>🎯 活動任務</h3>
+    <ul id="eventTasks"></ul>
+    <button onclick="toggleTasks()">關閉</button>
+  </div>
+
+  
+<script>
+let robotImg = new Image();
+let enemyImg = new Image();
+let bgImg = new Image();
+
+robotImg.src = 'assets/robotHero.png';
+enemyImg.src = 'assets/enemy.png';
+
+function setThemeBackground(theme) {
+  const map = {
+    winter: 'assets/bg_winter.png',
+    summer: 'assets/bg_summer.png',
+    halloween: 'assets/bg_halloween.png',
+    newyear: 'assets/bg_newyear.png'
+  };
+  bgImg.src = map[theme] || '';
+}
+
+
+function startGame() {
+  robotImg.onload = () => {
+    enemyImg.onload = () => {
+      bgImg.onload = () => {
+        document.getElementById("startBtn").style.display = "none";
+        document.getElementById("gameCanvas").style.display = "block";
+        canvas = document.getElementById("gameCanvas");
+        ctx = canvas.getContext("2d");
+        robotHero = { x: 100, y: 300, hp: 100 };
+        enemies = [{ x: 700, y: 300, hp: 50 }];
+        requestAnimationFrame(gameLoop);
+      };
+    };
+  };
+
+  document.getElementById("startBtn").style.display = "none";
+  document.getElementById("gameCanvas").style.display = "block";
+  canvas = document.getElementById("gameCanvas");
+  ctx = canvas.getContext("2d");
+  robotHero = { x: 100, y: 300, hp: 100 };
+  enemies = [{ x: 700, y: 300, hp: 50 }];
+  requestAnimationFrame(gameLoop);
+}
+
+function gameLoop() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
+  ctx.drawImage(robotImg, robotHero.x, robotHero.y, 40, 40);
+
+  enemies.forEach(enemy => {
+    ctx.drawImage(enemyImg, enemy.x, enemy.y, 40, 40);
+    let dx = robotHero.x - enemy.x;
+    let dy = robotHero.y - enemy.y;
+    let dist = Math.sqrt(dx * dx + dy * dy);
+    if (dist > 1) {
+      enemy.x += dx / dist;
+      enemy.y += dy / dist;
+    }
+  });
+
+  requestAnimationFrame(gameLoop);
+}
+
+window.onload = () => {
+  loadTasks();
+  const month = new Date().getMonth() + 1;
+  if ([12, 1, 2].includes(month)) setThemeBackground('winter');
+  else if ([6, 7, 8].includes(month)) setThemeBackground('summer');
+  else if (month === 10) setThemeBackground('halloween');
+  else if (month === 1) setThemeBackground('newyear');
+};
+
+    let canvas, ctx, robotHero, enemies = [], bullets = [], coins = [];
+
+    
+function startGame() {
+  robotImg.onload = () => {
+    enemyImg.onload = () => {
+      bgImg.onload = () => {
+        document.getElementById("startBtn").style.display = "none";
+        document.getElementById("gameCanvas").style.display = "block";
+        canvas = document.getElementById("gameCanvas");
+        ctx = canvas.getContext("2d");
+        robotHero = { x: 100, y: 300, hp: 100 };
+        enemies = [{ x: 700, y: 300, hp: 50 }];
+        requestAnimationFrame(gameLoop);
+      };
+    };
+  };
+
+      document.getElementById("startBtn").style.display = "none";
+      document.getElementById("gameCanvas").style.display = "block";
+      canvas = document.getElementById("gameCanvas");
+      ctx = canvas.getContext("2d");
+      robotHero = { x: 100, y: 300, hp: 100 };
+      enemies = [{ x: 700, y: 300, hp: 50 }];
+      requestAnimationFrame(gameLoop);
+    }
+
+    function gameLoop() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "blue";
+      ctx.fillRect(robotHero.x, robotHero.y, 40, 40);
+
+      enemies.forEach(enemy => {
+        ctx.fillStyle = "red";
+        ctx.fillRect(enemy.x, enemy.y, 40, 40);
+        let dx = robotHero.x - enemy.x;
+        let dy = robotHero.y - enemy.y;
+        let dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist > 1) {
+          enemy.x += dx / dist;
+          enemy.y += dy / dist;
+        }
+      });
+
+      requestAnimationFrame(gameLoop);
+    }
+
+    function toggleTasks() {
+      const panel = document.getElementById("taskPanel");
+      panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function loadTasks() {
+      const daily = [
+        { name: "擊敗 10 名敵人", reward: "金幣 x100" },
+        { name: "完成 1 次關卡", reward: "金券 x1" },
+        { name: "登入遊戲", reward: "金幣 x50" }
+      ];
+      const event = [
+        { name: "參加冬季關卡 3 次", reward: "碎片 x3" },
+        { name: "使用冰屬性角色完成任務", reward: "冬季碎片 x5" }
+      ];
+      const dailyList = document.getElementById("dailyTasks");
+      const eventList = document.getElementById("eventTasks");
+      daily.forEach(task => {
+        const li = document.createElement("li");
+        li.textContent = `${task.name} - 🎁 ${task.reward}`;
+        dailyList.appendChild(li);
+      });
+      event.forEach(task => {
+        const li = document.createElement("li");
+        li.textContent = `${task.name} - 🎁 ${task.reward}`;
+        eventList.appendChild(li);
+      });
+    }
+
+    window.onload = () => {
+      loadTasks();
+      const month = new Date().getMonth() + 1;
+      if ([12, 1, 2].includes(month)) document.body.style.background = '#ddf';
+      else if ([6, 7, 8].includes(month)) document.body.style.background = '#fef3c5';
+      else if (month === 10) document.body.style.background = '#fbe6e6';
+      else if (month === 1) document.body.style.background = '#fff0f0';
+    };
+  </script>
+</body>
+</html>
